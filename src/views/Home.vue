@@ -11,7 +11,7 @@
       <div class="header-section">
         <div class="logo-icon">🦎</div>
         <h1 class="title">异宠人格测试</h1>
-        <p class="subtitle">15道题测出你的天选异宠伴侣</p>
+        <p class="subtitle">30道题测出你的天选异宠伴侣</p>
       </div>
 
       <!-- 特征卡片 -->
