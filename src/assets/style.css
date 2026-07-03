@@ -1,0 +1,46 @@
+/* 全局样式 */
+:root {
+  --primary: #7c6cf0;
+  --primary-light: #9b8ff5;
+  --primary-dark: #5a4ad8;
+  --accent: #f0a86c;
+  --bg-dark: #0f0f0f;
+  --bg-card: #1a1a2e;
+  --bg-card2: #16213e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0b0;
+  --text-muted: #6b6b80;
+  --success: #4ade80;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --gradient: linear-gradient(135deg, #7c6cf0, #f0a86c);
+}
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Vant 组件覆盖 */
+:root {
+  --van-button-primary-background: var(--primary);
+  --van-button-primary-border-color: var(--primary);
+  --van-cell-background: var(--bg-card);
+  --van-cell-text-color: var(--text-primary);
+  --van-cell-value-color: var(--text-secondary);
+  --van-cell-border-color: rgba(255, 255, 255, 0.05);
+  --van-radio-checked-icon-color: var(--primary);
+  --van-radio-label-color: var(--text-primary);
+  --van-radio-border-color: rgba(255, 255, 255, 0.15);
+  --van-radio-background: transparent;
+  --van-progress-background: rgba(255, 255, 255, 0.1);
+  --van-button-border-radius: 12px;
+}
