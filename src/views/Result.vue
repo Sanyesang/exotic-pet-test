@@ -22,7 +22,7 @@
       <div class="top-pick" @click="showDetail(topPick)">
         <div class="top-badge">🏆 最佳匹配</div>
         <div class="top-card">
-          <div class="top-emoji">{{ topPick.emoji }}</div>
+          <div class="top-image"><img :src="topPick.image" :alt="topPick.name" /></div>
           <h2 class="top-name">{{ topPick.name }}</h2>
           <div class="top-title">{{ topPick.title }}</div>
           <div class="top-match">
@@ -67,7 +67,7 @@
             @click="showDetail(pet)"
           >
             <div class="pet-rank">#{{ idx + 2 }}</div>
-            <div class="pet-emoji">{{ pet.emoji }}</div>
+            <div class="pet-thumb"><img :src="pet.image" :alt="pet.name" /></div>
             <div class="pet-info">
               <div class="pet-name">{{ pet.name }}</div>
               <div class="pet-brief">{{ pet.title }}</div>
@@ -94,7 +94,7 @@
             @click="showDetail(pet)"
           >
             <span class="rank-num">{{ idx + 1 }}</span>
-            <span class="rank-emoji">{{ pet.emoji }}</span>
+            <span class="rank-thumb"><img :src="pet.image" :alt="pet.name" /></span>
             <span class="rank-name">{{ pet.name }}</span>
             <span class="rank-score">{{ pet.similarity }}%</span>
             <div class="rank-bar">
@@ -117,7 +117,7 @@
       <!-- 详情弹窗 -->
       <van-action-sheet v-model:show="detailSheet" :round="true">
         <div v-if="detailPet" class="detail-sheet">
-          <div class="detail-emoji">{{ detailPet.emoji }}</div>
+          <div class="detail-image"><img :src="detailPet.image" :alt="detailPet.name" /></div>
           <h2 class="detail-name">{{ detailPet.name }}</h2>
           <div class="detail-title">{{ detailPet.title }}</div>
           <div class="detail-match-badge">
@@ -346,10 +346,18 @@ onMounted(() => {
   background: linear-gradient(90deg, #7c6cf0, #f0a86c);
 }
 
-.top-emoji {
-  font-size: 72px;
-  margin-bottom: 12px;
-  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
+.top-image {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.top-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
 }
 .top-name {
   font-size: 28px;
@@ -491,8 +499,17 @@ onMounted(() => {
   color: var(--text-muted);
   min-width: 24px;
 }
-.pet-emoji {
-  font-size: 32px;
+.pet-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.pet-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .pet-info {
   flex: 1;
@@ -542,8 +559,17 @@ onMounted(() => {
   color: var(--text-muted);
   min-width: 20px;
 }
-.rank-emoji {
-  font-size: 22px;
+.rank-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.rank-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .rank-name {
   font-size: 14px;
@@ -616,9 +642,17 @@ onMounted(() => {
   overflow-y: auto;
 }
 
-.detail-emoji {
-  font-size: 64px;
-  margin-bottom: 12px;
+.detail-image {
+  width: 240px;
+  height: 240px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .detail-name {
   font-size: 24px;

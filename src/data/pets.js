@@ -14,6 +14,7 @@
 const pets = [
   {
     id: 'leopard-gecko',
+    image: '/images/leopard-gecko.jpg',
     name: '豹纹守宫',
     emoji: '🦎',
     title: 'ins风桌面萌主',
@@ -34,6 +35,7 @@ const pets = [
   },
   {
     id: 'bearded-dragon',
+    image: '/images/bearded-dragon.jpg',
     name: '鬃狮蜥',
     emoji: '🦎',
     title: '阳光大男孩',
@@ -54,6 +56,7 @@ const pets = [
   },
   {
     id: 'corn-snake',
+    image: '/images/corn-snake.jpg',
     name: '玉米蛇',
     emoji: '🐍',
     title: '温顺小可爱',
@@ -74,6 +77,7 @@ const pets = [
   },
   {
     id: 'ball-python',
+    image: '/images/ball-python.jpg',
     name: '球蟒',
     emoji: '🐍',
     title: '优雅艺术家',
@@ -94,6 +98,7 @@ const pets = [
   },
   {
     id: 'pacman-frog',
+    image: '/images/pacman-frog.jpg',
     name: '角蛙',
     emoji: '🐸',
     title: '肥宅快乐蛙',
@@ -114,6 +119,7 @@ const pets = [
   },
   {
     id: 'tarantula',
+    image: '/images/tarantula.jpg',
     name: '捕鸟蛛',
     emoji: '🕷️',
     title: '八足艺术家',
@@ -134,6 +140,7 @@ const pets = [
   },
   {
     id: 'sugar-glider',
+    image: '/images/sugar-glider.jpg',
     name: '蜜袋鼯',
     emoji: '🐿️',
     title: '粘人小飞侠',
@@ -154,6 +161,7 @@ const pets = [
   },
   {
     id: 'hedgehog',
+    image: '/images/hedgehog.jpg',
     name: '刺猬',
     emoji: '🦔',
     title: '带刺的温柔',
@@ -174,6 +182,7 @@ const pets = [
   },
   {
     id: 'chinchilla',
+    image: '/images/chinchilla.jpg',
     name: '龙猫',
     emoji: '🐹',
     title: '绒毛小公主',
@@ -194,6 +203,7 @@ const pets = [
   },
   {
     id: 'guinea-pig',
+    image: '/images/guinea-pig.jpg',
     name: '荷兰猪',
     emoji: '🐹',
     title: '行走的喇叭',
@@ -214,6 +224,7 @@ const pets = [
   },
   {
     id: 'turtle',
+    image: '/images/turtle.jpg',
     name: '草龟/巴西龟',
     emoji: '🐢',
     title: '佛系长寿老者',
@@ -234,6 +245,7 @@ const pets = [
   },
   {
     id: 'squirrel',
+    image: '/images/squirrel.jpg',
     name: '松鼠',
     emoji: '🐿️',
     title: '树上小旋风',
@@ -254,6 +266,7 @@ const pets = [
   },
   {
     id: 'call-duck',
+    image: '/images/call-duck.jpg',
     name: '科尔鸭',
     emoji: '🦆',
     title: '网红小可爱',
@@ -274,6 +287,7 @@ const pets = [
   },
   {
     id: 'dwarf-rabbit',
+    image: '/images/dwarf-rabbit.jpg',
     name: '迷你兔',
     emoji: '🐰',
     title: '毛球小天使',
@@ -294,6 +308,7 @@ const pets = [
   },
   {
     id: 'tortoise',
+    image: '/images/tortoise.jpg',
     name: '陆龟',
     emoji: '🐢',
     title: '佛系慢生活',
@@ -314,6 +329,7 @@ const pets = [
   },
   {
     id: 'blue-tongue-skink',
+    image: '/images/blue-tongue-skink.jpg',
     name: '蓝舌石龙子',
     emoji: '🦎',
     title: '狗里狗气的大蓝舌',
@@ -334,6 +350,7 @@ const pets = [
   },
   {
     id: 'hermit-crab',
+    image: '/images/hermit-crab.jpg',
     name: '寄居蟹',
     emoji: '🦀',
     title: '换房小能手',
@@ -354,6 +371,7 @@ const pets = [
   },
   {
     id: 'chameleon',
+    image: '/images/chameleon.jpg',
     name: '变色龙',
     emoji: '🦎',
     title: '高冷色彩大师',
@@ -374,6 +392,7 @@ const pets = [
   },
   {
     id: 'axolotl',
+    image: '/images/axolotl.jpg',
     name: '六角恐龙',
     emoji: '🦎',
     title: '永不长大水精灵',
@@ -394,6 +413,7 @@ const pets = [
   },
   {
     id: 'hognose-snake',
+    image: '/images/hognose-snake.jpg',
     name: '猪鼻蛇',
     emoji: '🐍',
     title: '戏精本精',
@@ -414,6 +434,7 @@ const pets = [
   },
   {
     id: 'milk-frog',
+    image: '/images/milk-frog.jpg',
     name: '亚马逊奶蛙',
     emoji: '🐸',
     title: '巧克力蛙本蛙',
@@ -434,6 +455,7 @@ const pets = [
   },
   {
     id: 'emperor-scorpion',
+    image: '/images/emperor-scorpion.jpg',
     name: '帝王蝎',
     emoji: '🦂',
     title: '黑武士',
