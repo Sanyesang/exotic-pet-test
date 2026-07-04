@@ -3,11 +3,19 @@
     <!-- 顶部进度 -->
     <div class="quiz-header">
       <div class="progress-info">
-        <span class="step-num">{{ currentIndex + 1 }} / {{ questions.length }}</span>
+        <span class="step-num">已答 {{ answers.length }} / {{ questions.length }} 题</span>
         <span class="step-percent">{{ Math.round(progress) }}%</span>
       </div>
       <div class="progress-bar">
         <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+        <div class="progress-dots">
+          <span
+            v-for="i in questions.length"
+            :key="i"
+            class="dot"
+            :class="{ filled: i <= answers.length, current: i === currentIndex + 1 }"
+          ></span>
+        </div>
       </div>
     </div>
 
@@ -72,7 +80,8 @@ const answers = ref([])
 const selectedHistory = ref([]) // 存每题的 selectedIndex
 
 const currentQ = computed(() => questions[currentIndex.value])
-const progress = computed(() => ((currentIndex.value) / questions.length) * 100)
+// 进度 = 已答题数 / 总题数 × 100（不是当前位置）
+const progress = computed(() => (answers.value.length / questions.length) * 100)
 const isLast = computed(() => currentIndex.value === questions.length - 1)
 
 function selectOption(idx) {
@@ -140,16 +149,42 @@ function prevQuestion() {
 }
 
 .progress-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: 4px;
-  transition: width 0.5s ease;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+.progress-dots {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+  gap: 0;
+}
+.progress-dots .dot {
+  flex: 1;
+  height: 2px;
+  background: transparent;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.progress-dots .dot.filled {
+  background: rgba(255, 255, 255, 0.2);
+}
+.progress-dots .dot.current {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .question-area {
