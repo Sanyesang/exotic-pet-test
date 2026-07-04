@@ -127,47 +127,76 @@
             匹配度 <strong>{{ detailPet.similarity }}%</strong>
           </div>
 
-          <div class="detail-section">
-            <h4>📝 简介</h4>
-            <p>{{ detailPet.description }}</p>
+          <!-- 标签切换 -->
+          <div class="detail-tabs">
+            <span
+              class="tab"
+              :class="{ active: detailTab === 'intro' }"
+              @click="detailTab = 'intro'"
+            >📖 简介</span>
+            <span
+              class="tab"
+              :class="{ active: detailTab === 'care' }"
+              @click="detailTab = 'care'"
+            >📋 饲养档案</span>
           </div>
 
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">⏳ 寿命</span>
-              <span class="detail-val">{{ detailPet.lifespan }}</span>
+          <!-- 简介标签 -->
+          <div v-show="detailTab === 'intro'">
+            <div class="detail-section">
+              <h4>📝 简介</h4>
+              <p>{{ detailPet.description }}</p>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">💰 参考价格</span>
-              <span class="detail-val">{{ detailPet.price }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">📊 饲养难度</span>
-              <span class="detail-val">{{ detailPet.difficulty }}</span>
-            </div>
-          </div>
 
-          <div class="detail-section">
-            <h4>🏷️ 标签</h4>
-            <div class="detail-tags">
-              <span v-for="tag in detailPet.tags" :key="tag" class="detail-tag">{{ tag }}</span>
-            </div>
-          </div>
-
-          <!-- 维度雷达 -->
-          <div class="detail-section">
-            <h4>📈 各维度需求</h4>
-            <div class="dimension-bars">
-              <div v-for="dim in dimensions" :key="dim.key" class="dim-row">
-                <span class="dim-label">{{ dim.label }}</span>
-                <div class="dim-bar">
-                  <div
-                    class="dim-fill"
-                    :style="{ width: (detailPet[dim.key] / 5) * 100 + '%' }"
-                  ></div>
-                </div>
-                <span class="dim-val">{{ detailPet[dim.key] }}/5</span>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">⏳ 寿命</span>
+                <span class="detail-val">{{ detailPet.lifespan }}</span>
               </div>
+              <div class="detail-item">
+                <span class="detail-label">💰 参考价格</span>
+                <span class="detail-val">{{ detailPet.price }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">📊 饲养难度</span>
+                <span class="detail-val">{{ detailPet.difficulty }}</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <h4>🏷️ 标签</h4>
+              <div class="detail-tags">
+                <span v-for="tag in detailPet.tags" :key="tag" class="detail-tag">{{ tag }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 饲养档案标签 -->
+          <div v-show="detailTab === 'care'">
+            <div v-if="careGuide" class="care-guide">
+              <div class="care-item">
+                <div class="care-label">🌡️ 环境要求</div>
+                <div class="care-value">{{ careGuide.environment }}</div>
+              </div>
+              <div class="care-item">
+                <div class="care-label">🍽️ 喂食指南</div>
+                <div class="care-value">{{ careGuide.feeding }}</div>
+              </div>
+              <div class="care-item">
+                <div class="care-label">🧹 日常维护</div>
+                <div class="care-value">{{ careGuide.maintenance }}</div>
+              </div>
+              <div class="care-item">
+                <div class="care-label">💡 新手贴士</div>
+                <div class="care-value care-tips">{{ careGuide.tips }}</div>
+              </div>
+              <div class="care-item">
+                <div class="care-label">⚠️ 常见问题</div>
+                <div class="care-value care-warn">{{ careGuide.commonIssues }}</div>
+              </div>
+            </div>
+            <div v-else class="care-empty">
+              饲养档案加载中...
             </div>
           </div>
         </div>
@@ -181,6 +210,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { matchPets, getUserProfile } from '../utils/match.js'
 import { generateShareCard } from '../utils/shareCard.js'
+import careGuides from '../data/careGuides.js'
 import { showToast, showLoadingToast, closeToast } from 'vant'
 
 const router = useRouter()
@@ -189,7 +219,13 @@ const allRanked = ref([])
 const userTags = ref([])
 const detailSheet = ref(false)
 const detailPet = ref(null)
+const detailTab = ref('intro')
 const showFullRank = ref(false)
+
+const careGuide = computed(() => {
+  if (!detailPet.value || !detailPet.value.id) return null
+  return careGuides[detailPet.value.id] || null
+})
 const cardLoading = ref(false)
 
 const circumference = computed(() => 2 * Math.PI * 42)
@@ -212,6 +248,7 @@ const sameAsTop = computed(() => false)
 
 function showDetail(pet) {
   detailPet.value = pet
+  detailTab.value = 'intro'
   detailSheet.value = true
 }
 
@@ -745,6 +782,68 @@ onMounted(() => {
 .detail-match-badge strong {
   color: var(--primary);
   font-size: 18px;
+}
+
+/* 详情标签切换 */
+.detail-tabs {
+  display: flex;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.tab.active {
+  background: rgba(124, 108, 240, 0.15);
+  color: #9b8ff5;
+}
+
+/* 饲养档案 */
+.care-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.care-item {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.care-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.care-value {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.care-tips {
+  color: #4ade80;
+}
+.care-warn {
+  color: #f0a86c;
+}
+.care-empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 .detail-section {
