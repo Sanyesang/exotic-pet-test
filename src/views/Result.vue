@@ -107,7 +107,10 @@
       <!-- 底部操作 -->
       <div class="bottom-actions">
         <button class="share-btn" @click="shareResult">
-          📤 分享结果
+          📤 分享链接
+        </button>
+        <button class="card-btn" :disabled="cardLoading" @click="generateCard">
+          {{ cardLoading ? '⏳ 生成中...' : '🖼️ 分享卡片' }}
         </button>
         <button class="retest-btn" @click="goHome">
           🔄 重新测试
@@ -177,7 +180,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { matchPets, getUserProfile } from '../utils/match.js'
-import { showToast } from 'vant'
+import { generateShareCard } from '../utils/shareCard.js'
+import { showToast, showLoadingToast, closeToast } from 'vant'
 
 const router = useRouter()
 const hasResult = ref(false)
@@ -186,6 +190,7 @@ const userTags = ref([])
 const detailSheet = ref(false)
 const detailPet = ref(null)
 const showFullRank = ref(false)
+const cardLoading = ref(false)
 
 const circumference = computed(() => 2 * Math.PI * 42)
 
@@ -208,6 +213,52 @@ const sameAsTop = computed(() => false)
 function showDetail(pet) {
   detailPet.value = pet
   detailSheet.value = true
+}
+
+async function generateCard() {
+  const pet = topPick.value
+  if (!pet || !pet.id) return
+
+  cardLoading.value = true
+  showLoadingToast({ message: '生成分享卡片...', forbidClick: true })
+
+  try {
+    const blob = await generateShareCard(pet, userTags.value)
+    closeToast()
+
+    // 尝试用 Web Share API 分享图片
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], 'exotic-pet-test.png', { type: 'image/png' })
+      try {
+        await navigator.share({
+          title: '我的异宠人格测试结果',
+          text: `最适合我的是「${pet.name}」`,
+          files: [file]
+        })
+        return
+      } catch (e) {
+        // 分享取消或失败，走下载
+      }
+    }
+
+    // 下载图片（手机端长按可保存）
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `异宠人格-${pet.name}.png`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    showToast('卡片已保存，快去分享到朋友圈吧！')
+  } catch (e) {
+    closeToast()
+    showToast('生成失败，请重试')
+    console.error('Card generation error:', e)
+  } finally {
+    cardLoading.value = false
+  }
 }
 
 function goHome() {
@@ -618,6 +669,23 @@ onMounted(() => {
 }
 .share-btn:active {
   transform: scale(0.97);
+}
+.card-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.card-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.1);
+}
+.card-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .retest-btn {
   background: transparent;
