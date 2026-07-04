@@ -36,15 +36,24 @@
 
     <!-- 底部按钮 -->
     <div class="bottom-bar">
-      <button
-        class="next-btn"
-        :class="{ disabled: selectedIndex === null }"
-        :disabled="selectedIndex === null"
-        @click="nextQuestion"
-      >
-        {{ isLast ? '查看结果' : '下一题' }}
-        <span class="next-arrow">→</span>
-      </button>
+      <div class="btn-row">
+        <button
+          v-if="currentIndex > 0"
+          class="prev-btn"
+          @click="prevQuestion"
+        >
+          ← 上一题
+        </button>
+        <button
+          class="next-btn"
+          :class="{ disabled: selectedIndex === null, full: currentIndex === 0 }"
+          :disabled="selectedIndex === null"
+          @click="nextQuestion"
+        >
+          {{ isLast ? '查看结果' : '下一题' }}
+          <span class="next-arrow">→</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -58,6 +67,9 @@ const router = useRouter()
 const currentIndex = ref(0)
 const selectedIndex = ref(null)
 const answers = ref([])
+
+// 记录每道题用户选了什么选项（用于回溯时恢复）
+const selectedHistory = ref([]) // 存每题的 selectedIndex
 
 const currentQ = computed(() => questions[currentIndex.value])
 const progress = computed(() => ((currentIndex.value) / questions.length) * 100)
@@ -75,21 +87,29 @@ function nextQuestion() {
     questionId: currentQ.value.id,
     scores: currentQ.value.options[selectedIndex.value].scores
   })
+  selectedHistory.value.push(selectedIndex.value)
 
   if (isLast.value) {
-    // 将答案传给结果页
     router.push({
       path: '/loading',
       query: { t: Date.now() }
     })
-    // 用 sessionStorage 传递答案
     sessionStorage.setItem('quiz_answers', JSON.stringify(answers.value))
   } else {
     currentIndex.value++
     selectedIndex.value = null
-    // 滑动到顶部
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+}
+
+function prevQuestion() {
+  if (currentIndex.value <= 0) return
+  // 弹出当前题的答案
+  currentIndex.value--
+  answers.value.pop()
+  // 恢复之前选中的选项
+  selectedIndex.value = selectedHistory.value.pop() ?? null
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 </script>
 
@@ -231,8 +251,30 @@ function nextQuestion() {
   z-index: 10;
 }
 
+.btn-row {
+  display: flex;
+  gap: 12px;
+}
+
+.prev-btn {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.prev-btn:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .next-btn {
-  width: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -247,6 +289,10 @@ function nextQuestion() {
   cursor: pointer;
   transition: all 0.3s ease;
   letter-spacing: 1px;
+}
+.next-btn.full {
+  flex: 1;
+  width: 100%;
 }
 .next-btn:active:not(.disabled) {
   transform: scale(0.97);
