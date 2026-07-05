@@ -8,7 +8,7 @@
 
     <template v-else>
       <!-- 头部：用户画像标签 -->
-      <div class="result-header">
+      <div class="result-header anim-up a-delay-1">
         <div class="profile-section">
           <div class="profile-icon">🧬</div>
           <h1 class="profile-title">你的异宠人格</h1>
@@ -19,7 +19,7 @@
       </div>
 
       <!-- #1 推荐 -->
-      <div class="top-pick" @click="showDetail(topPick)">
+      <div class="top-pick anim-up a-delay-2" @click="showDetail(topPick)">
         <div class="top-badge">🏆 最佳匹配</div>
         <div class="top-card">
           <div class="top-image"><img :src="topPick.image" :alt="topPick.name" /></div>
@@ -57,7 +57,7 @@
       </div>
 
       <!-- 更多推荐 -->
-      <div class="more-section">
+      <div class="more-section anim-up a-delay-3">
         <h3 class="section-title">更多适合你的异宠</h3>
         <div class="pet-list">
           <div
@@ -80,7 +80,7 @@
       </div>
 
       <!-- 完整排行 -->
-      <div class="full-rank-section">
+      <div class="full-rank-section anim-up a-delay-4">
         <h3 class="section-title" @click="showFullRank = !showFullRank">
           完整匹配排行
           <span class="toggle-icon">{{ showFullRank ? '▲' : '▼' }}</span>
@@ -105,7 +105,7 @@
       </div>
 
       <!-- 底部操作 -->
-      <div class="bottom-actions">
+      <div class="bottom-actions anim-up a-delay-5">
         <button class="share-btn" @click="shareResult">
           📤 分享链接
         </button>
@@ -115,6 +115,24 @@
         <button class="retest-btn" @click="goHome">
           🔄 重新测试
         </button>
+      </div>
+
+      <!-- 分享引导弹窗 -->
+      <div v-if="showShareGuide" class="share-overlay" @click="dismissShareGuide">
+        <div class="share-modal" @click.stop>
+          <div class="share-close" @click="dismissShareGuide">✕</div>
+          <div class="share-modal-icon">🎉</div>
+          <h2 class="share-modal-title">结果出来了！</h2>
+          <p class="share-modal-desc">生成一张分享卡片发到朋友圈<br/>看看朋友们适合哪种异宠吧！</p>
+          <div class="share-modal-actions">
+            <button class="share-modal-btn primary" @click="handleShareGuideCard">
+              🖼️ 生成分享卡片
+            </button>
+            <button class="share-modal-btn text" @click="dismissShareGuide">
+              下次再说
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 详情弹窗 -->
@@ -206,7 +224,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { matchPets, getUserProfile } from '../utils/match.js'
 import { generateShareCard } from '../utils/shareCard.js'
@@ -227,6 +245,8 @@ const careGuide = computed(() => {
   return careGuides[detailPet.value.id] || null
 })
 const cardLoading = ref(false)
+const showShareGuide = ref(false)
+let shareGuideTimer = null
 
 const circumference = computed(() => 2 * Math.PI * 42)
 
@@ -313,13 +333,27 @@ function shareResult() {
       url: window.location.origin
     }).catch(() => {})
   } else {
-    // 复制链接
     navigator.clipboard.writeText(text + ' ' + window.location.origin).then(() => {
       showToast('已复制到剪贴板，快去分享给朋友吧！')
     }).catch(() => {
       showToast('分享失败，请手动复制')
     })
   }
+}
+
+function dismissShareGuide() {
+  showShareGuide.value = false
+}
+
+async function handleShareGuideCard() {
+  showShareGuide.value = false
+  await generateCard()
+  // 生成完后延迟再弹一次（让用户知道可以分享）
+  setTimeout(() => {
+    if (!cardLoading.value) {
+      showToast('长按图片可保存到相册，快去发朋友圈吧！')
+    }
+  }, 1000)
 }
 
 onMounted(() => {
@@ -331,14 +365,137 @@ onMounted(() => {
       allRanked.value = results
       userTags.value = getUserProfile(answers)
       hasResult.value = true
+      // 延迟弹出分享引导
+      shareGuideTimer = setTimeout(() => {
+        if (hasResult.value) {
+          showShareGuide.value = true
+        }
+      }, 1500)
     } catch (e) {
       console.error('解析答案失败', e)
     }
   }
 })
+
+onBeforeUnmount(() => {
+  if (shareGuideTimer) clearTimeout(shareGuideTimer)
+})
 </script>
 
 <style scoped>
+/* ===== 入场动画 ===== */
+.anim-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeUp 0.6s ease forwards;
+}
+.a-delay-1 { animation-delay: 0.1s; }
+.a-delay-2 { animation-delay: 0.3s; }
+.a-delay-3 { animation-delay: 0.5s; }
+.a-delay-4 { animation-delay: 0.7s; }
+.a-delay-5 { animation-delay: 0.9s; }
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 分享引导弹窗 ===== */
+.share-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  backdrop-filter: blur(4px);
+  animation: overlayIn 0.3s ease;
+}
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.share-modal {
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 36px 28px 28px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  animation: modalPop 0.4s ease;
+}
+@keyframes modalPop {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.share-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 20px;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.share-close:active {
+  background: rgba(255, 255, 255, 0.06);
+}
+.share-modal-icon {
+  font-size: 56px;
+  margin-bottom: 12px;
+}
+.share-modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.share-modal-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+.share-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.share-modal-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.share-modal-btn.primary {
+  background: linear-gradient(135deg, #7c6cf0, #5a4ad8);
+  color: white;
+  box-shadow: 0 8px 32px rgba(124, 108, 240, 0.3);
+}
+.share-modal-btn.primary:active {
+  transform: scale(0.97);
+}
+.share-modal-btn.text {
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px;
+}
+.share-modal-btn.text:active {
+  color: var(--text-secondary);
+}
+
 .result-page {
   min-height: 100vh;
   background: linear-gradient(180deg, #0f0f0f 0%, #1a1a2e 100%);
