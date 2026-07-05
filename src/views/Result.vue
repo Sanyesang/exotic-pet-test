@@ -22,7 +22,7 @@
       <div class="top-pick anim-up a-delay-2" @click="showDetail(topPick)">
         <div class="top-badge">🏆 最佳匹配</div>
         <div class="top-card">
-          <div class="top-image"><img :src="topPick.image" :alt="topPick.name" /></div>
+          <div class="top-image"><img :src="topPick.image" :alt="topPick.name" @error="imgErr" /></div>
           <h2 class="top-name">{{ topPick.name }}</h2>
           <div class="top-title">{{ topPick.title }}</div>
           <div class="top-match">
@@ -67,7 +67,7 @@
             @click="showDetail(pet)"
           >
             <div class="pet-rank">#{{ idx + 2 }}</div>
-            <div class="pet-thumb"><img :src="pet.image" :alt="pet.name" /></div>
+            <div class="pet-thumb"><img :src="pet.image" :alt="pet.name" @error="imgErr" /></div>
             <div class="pet-info">
               <div class="pet-name">{{ pet.name }}</div>
               <div class="pet-brief">{{ pet.title }}</div>
@@ -94,7 +94,7 @@
             @click="showDetail(pet)"
           >
             <span class="rank-num">{{ idx + 1 }}</span>
-            <span class="rank-thumb"><img :src="pet.image" :alt="pet.name" /></span>
+            <span class="rank-thumb"><img :src="pet.image" :alt="pet.name" @error="imgErr" /></span>
             <span class="rank-name">{{ pet.name }}</span>
             <span class="rank-score">{{ pet.similarity }}%</span>
             <div class="rank-bar">
@@ -138,7 +138,7 @@
       <!-- 详情弹窗 -->
       <van-action-sheet v-model:show="detailSheet" :round="true">
         <div v-if="detailPet" class="detail-sheet">
-          <div class="detail-image"><img :src="detailPet.image" :alt="detailPet.name" /></div>
+          <div class="detail-image"><img :src="detailPet.image" :alt="detailPet.name" @error="imgErr" /></div>
           <h2 class="detail-name">{{ detailPet.name }}</h2>
           <div class="detail-title">{{ detailPet.title }}</div>
           <div class="detail-match-badge">
@@ -339,6 +339,17 @@ function shareResult() {
       showToast('分享失败，请手动复制')
     })
   }
+}
+
+// 图片加载失败时替换为纯色占位
+const placeHolderSvg = () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#1a1a2e" rx="16"/></svg>'
+  return 'data:image/svg+xml,' + encodeURIComponent(svg)
+}
+function imgErr(e) {
+  const img = e.target
+  if (img.src.includes('data:image/svg')) return
+  img.src = placeHolderSvg()
 }
 
 function dismissShareGuide() {

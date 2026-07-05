@@ -35,7 +35,7 @@
         <!-- 商品卡片 -->
         <div class="product-card" @click="openAdLink">
           <div class="product-image-wrap">
-            <img :src="currentAdProduct.image" :alt="currentAdProduct.title" class="product-image" />
+            <img :src="currentAdProduct.image" :alt="currentAdProduct.title" class="product-image" @error="imgErr" />
             <span class="product-tag">{{ currentAdProduct.tag }}</span>
           </div>
           <div class="product-info">
@@ -181,6 +181,15 @@ function startProductRotation() {
 
 function goToResult() {
   router.push('/result')
+}
+
+// 图片加载失败兜底
+function imgErr(e) {
+  const img = e.target
+  if (img.src && img.src.includes('data:image/svg')) return
+  img.src = 'data:image/svg+xml,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#1a1a2e" rx="16"/></svg>'
+  )
 }
 
 // 点击商品打开推广链接
