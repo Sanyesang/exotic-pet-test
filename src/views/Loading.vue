@@ -116,7 +116,7 @@ const analyzeHints = [
 ]
 
 // 商品广告
-const adProducts = getAdProducts() // 3 个商品
+const adProducts = getAdProducts(2) // 2 个商品
 const currentAdIdx = ref(0)
 const currentAdProduct = computed(() => adProducts[currentAdIdx.value])
 let productRotateTimer = null
