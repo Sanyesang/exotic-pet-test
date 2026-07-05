@@ -115,7 +115,34 @@
         <button class="retest-btn" @click="goHome">
           🔄 重新测试
         </button>
+        <button class="review-btn" @click="showReview = true">
+          📋 答题回顾
+        </button>
       </div>
+
+      <!-- 答题回顾弹窗 -->
+      <van-action-sheet v-model:show="showReview" :round="true" title="答题回顾">
+        <div class="review-sheet">
+          <div class="review-summary">
+            共 <strong>{{ savedAnswers.length }}</strong> 题
+          </div>
+          <div
+            v-for="(ans, idx) in savedAnswers"
+            :key="idx"
+            class="review-item"
+          >
+            <div class="review-q-num">Q{{ idx + 1 }}</div>
+            <div class="review-q-content">
+              <div class="review-q-icon">{{ ans.questionIcon || '📝' }}</div>
+              <div class="review-q-title">{{ ans.questionTitle || '题目' + (idx + 1) }}</div>
+              <div class="review-a">
+                <span class="review-a-badge">你的选择</span>
+                {{ ans.selectedLabel || '未记录' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </van-action-sheet>
 
       <!-- 分享引导弹窗 -->
       <div v-if="showShareGuide" class="share-overlay" @click="dismissShareGuide">
@@ -244,6 +271,8 @@ const detailSheet = ref(false)
 const detailPet = ref(null)
 const detailTab = ref('intro')
 const showFullRank = ref(false)
+const showReview = ref(false)
+const savedAnswers = ref([])
 
 const careGuide = computed(() => {
   if (!detailPet.value || !detailPet.value.id) return null
@@ -391,6 +420,7 @@ onMounted(() => {
   if (stored) {
     try {
       const answers = JSON.parse(stored)
+      savedAnswers.value = answers
       const results = matchPets(answers)
       allRanked.value = results
       userTags.value = getUserProfile(answers)
@@ -1140,5 +1170,73 @@ onBeforeUnmount(() => {
   color: var(--text-muted);
   min-width: 30px;
   text-align: right;
+}
+
+/* ===== 答题回顾 ===== */
+.review-sheet {
+  padding: 16px 20px 40px;
+  background: #0f0f0f;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.review-summary {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.review-summary strong {
+  color: var(--primary);
+  font-size: 18px;
+}
+.review-item {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.review-q-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 30px;
+  padding-top: 2px;
+}
+.review-q-content {
+  flex: 1;
+  min-width: 0;
+}
+.review-q-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.review-q-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.review-a {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.review-a-badge {
+  font-size: 11px;
+  background: rgba(124, 108, 240, 0.12);
+  color: #9b8ff5;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-weight: 500;
+  flex-shrink: 0;
 }
 </style>

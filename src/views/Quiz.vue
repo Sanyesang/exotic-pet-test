@@ -94,6 +94,10 @@ function nextQuestion() {
   // 保存当前答案
   answers.value.push({
     questionId: currentQ.value.id,
+    questionTitle: currentQ.value.title,
+    questionIcon: currentQ.value.icon,
+    selectedIndex: selectedIndex.value,
+    selectedLabel: currentQ.value.options[selectedIndex.value].label,
     scores: currentQ.value.options[selectedIndex.value].scores
   })
   selectedHistory.value.push(selectedIndex.value)
