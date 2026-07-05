@@ -122,11 +122,11 @@ const currentAdProduct = computed(() => adProducts[currentAdIdx.value])
 let productRotateTimer = null
 
 // 广告倒计时
-const adCountdown = ref(30)
+const adCountdown = ref(10)
 const adProgress = ref(0)
 const adFinished = ref(false)
 let adTimer = null
-const totalAdSeconds = 30
+const totalAdSeconds = 10
 
 const circumference = computed(() => 2 * Math.PI * 42)
 
