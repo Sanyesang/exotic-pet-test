@@ -2,9 +2,7 @@
  * CPS 电商推广商品数据
  *
  * 使用方式：
- * 1. 注册淘宝客/多多进宝/京东联盟
- * 2. 搜索异宠相关商品
- * 3. 获取推广链接，替换下方 link 字段
+ * 从多多进宝/京东联盟获取推广链接，替换下方 link 字段
  *
  * 这些商品会在广告页展示，用户点击购买你赚佣金
  * 不需要ICP备案
@@ -12,12 +10,12 @@
 const products = [
   {
     id: 1,
-    title: '爬虫饲养箱 守宫角蛙通用',
+    title: '豹纹守宫/鬃狮蜥 活体 新手入门',
     image: 'https://image.pollinations.ai/prompt/glass%20terrarium%20for%20reptiles%20white%20background%20product%20photo?width=400&height=400&nologo=true',
-    price: '¥88起',
+    price: '¥22.40起',
     tag: '🔥 热销',
-    link: 'https://s.click.taobao.com/your-affiliate-link',
-    shop: '淘宝'
+    link: 'https://mobile.yangkeduo.com/duo_coupon_landing.html?goods_id=930726753134&pid=44554960_316791390&goods_sign=E9P2etntzfpt8cPhwvbA0GdzxyE-wk86_JGVpx2jv5&cpsSign=CC_260705_44554960_316791390_f22115ecc1dff21df4cb35ee5001409c&_x_ddjb_act=%7B%22st%22%3A%221%22%7D&duoduo_type=2',
+    shop: '拼多多'
   },
   {
     id: 2,
