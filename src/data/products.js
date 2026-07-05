@@ -19,12 +19,12 @@ const products = [
   },
   {
     id: 2,
-    title: 'UVA/UVB 加热灯 爬虫保温',
-    image: 'https://image.pollinations.ai/prompt/reptile%20heat%20lamp%20UVA%20UVB%20white%20background%20product%20photo?width=400&height=400&nologo=true',
-    price: '¥39起',
-    tag: '⚡ 必备',
-    link: 'https://s.click.taobao.com/your-affiliate-link',
-    shop: '淘宝'
+    title: '超小爬宠守宫精准温控宠物温湿度计',
+    image: 'https://image.pollinations.ai/prompt/digital%20thermometer%20hygrometer%20white%20background%20product%20photo?width=400&height=400&nologo=true',
+    price: '¥4.79起',
+    tag: '🎯 必备',
+    link: 'https://mobile.yangkeduo.com/duo_coupon_landing.html?goods_id=952270508898&pid=44554960_316791390&goods_sign=E9r2f93wLfZt8cPhwvbA0KhYk21nPamZ_JQEbPdgkwi&cpsSign=CC_260705_44554960_316791390_4ec0c04874583d542395d89bb15acdda&_x_ddjb_act=%7B%22st%22%3A%221%7D&duoduo_type=2',
+    shop: '拼多多'
   },
   {
     id: 3,
