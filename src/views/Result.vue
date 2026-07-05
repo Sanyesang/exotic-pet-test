@@ -138,7 +138,12 @@
       <!-- 详情弹窗 -->
       <van-action-sheet v-model:show="detailSheet" :round="true">
         <div v-if="detailPet" class="detail-sheet">
-          <div class="detail-image"><img :src="detailPet.image" :alt="detailPet.name" @error="imgErr" /></div>
+          <div class="detail-image">
+            <img :src="detailImgSrc" :alt="detailPet.name" @error="imgErr" />
+            <button class="toggle-style-btn" @click="togglePetStyle">
+              {{ showRealistic ? '🎨 卡通' : '📷 真实' }}
+            </button>
+          </div>
           <h2 class="detail-name">{{ detailPet.name }}</h2>
           <div class="detail-title">{{ detailPet.title }}</div>
           <div class="detail-match-badge">
@@ -246,7 +251,16 @@ const careGuide = computed(() => {
 })
 const cardLoading = ref(false)
 const showShareGuide = ref(false)
+const showRealistic = ref(false)
 let shareGuideTimer = null
+
+const detailImgSrc = computed(() => {
+  if (!detailPet.value || !detailPet.value.id) return ''
+  if (showRealistic.value) {
+    return `/images/realistic/${detailPet.value.id}.jpg`
+  }
+  return detailPet.value.image
+})
 
 const circumference = computed(() => 2 * Math.PI * 42)
 
@@ -269,7 +283,12 @@ const sameAsTop = computed(() => false)
 function showDetail(pet) {
   detailPet.value = pet
   detailTab.value = 'intro'
+  showRealistic.value = false
   detailSheet.value = true
+}
+
+function togglePetStyle() {
+  showRealistic.value = !showRealistic.value
 }
 
 async function generateCard() {
@@ -918,14 +937,33 @@ onBeforeUnmount(() => {
 .detail-image {
   width: 240px;
   height: 240px;
-  margin: 0 auto 16px;
+  margin: 0 auto 12px;
   border-radius: 16px;
   overflow: hidden;
+  position: relative;
 }
 .detail-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.toggle-style-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(15, 15, 15, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.toggle-style-btn:active {
+  transform: scale(0.94);
+  background: rgba(15, 15, 15, 0.9);
 }
 .detail-name {
   font-size: 24px;
