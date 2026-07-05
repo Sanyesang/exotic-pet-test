@@ -159,7 +159,7 @@ export async function generateShareCard(pet, tags) {
   ctx.fillText(pet.title || '', CARD_WIDTH / 2, nameY + 36)
 
   // ---- 8. 分割线 ----
-  const lineY = nameY + 70
+  const lineY = nameY + 60
   ctx.beginPath()
   ctx.moveTo(CARD_WIDTH / 2 - 120, lineY)
   ctx.lineTo(CARD_WIDTH / 2 + 120, lineY)
@@ -167,11 +167,34 @@ export async function generateShareCard(pet, tags) {
   ctx.lineWidth = 1
   ctx.stroke()
 
-  // ---- 9. 底部 CTA ----
-  const ctaY = CARD_HEIGHT - 80
-  // CTA 背景
-  const ctaW = 320
-  const ctaH = 52
+  // ---- 9. 二维码 ----
+  try {
+    const qrCode = await loadImage('/images/qr-code.png')
+    const qrSize = 80
+    const qrX = (CARD_WIDTH - qrSize) / 2
+    const qrY = lineY + 18
+    // 二维码背景
+    ctx.beginPath()
+    ctx.roundRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 8)
+    ctx.fillStyle = '#ffffff'
+    ctx.fill()
+    ctx.drawImage(qrCode, qrX, qrY, qrSize, qrSize)
+  } catch (e) {
+    // 二维码加载失败，用文字代替
+  }
+
+  // ---- 10. 扫码提示 ----
+  const scanY = lineY + 120
+  ctx.font = '16px sans-serif'
+  ctx.fillStyle = '#a0a0b0'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('扫一扫 · 测测你的天选异宠', CARD_WIDTH / 2, scanY)
+
+  // ---- 11. 底部 CTA ----
+  const ctaY = scanY + 38
+  const ctaW = 260
+  const ctaH = 44
   const ctaX = (CARD_WIDTH - ctaW) / 2
   ctx.beginPath()
   ctx.roundRect(ctaX, ctaY - ctaH / 2, ctaW, ctaH, ctaH / 2)
@@ -181,16 +204,16 @@ export async function generateShareCard(pet, tags) {
   ctx.fillStyle = ctaGrad
   ctx.fill()
 
-  ctx.font = 'bold 20px sans-serif'
+  ctx.font = 'bold 16px sans-serif'
   ctx.fillStyle = '#ffffff'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText('扫码测测你的天选异宠', CARD_WIDTH / 2, ctaY)
+  ctx.fillText('开始测试 →', CARD_WIDTH / 2, ctaY)
 
-  // ---- 10. 底部网址 ----
-  ctx.font = '14px sans-serif'
+  // ---- 12. 底部网址 ----
+  ctx.font = '12px sans-serif'
   ctx.fillStyle = '#6b6b80'
-  ctx.fillText(window.location.hostname || '异宠人格测试', CARD_WIDTH / 2, CARD_HEIGHT - 28)
+  ctx.fillText(window.location.hostname || '异宠人格测试', CARD_WIDTH / 2, CARD_HEIGHT - 18)
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
