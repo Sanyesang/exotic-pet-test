@@ -44,7 +44,10 @@
               </div>
             </div>
           </div>
-          <p class="top-desc">{{ topPick.description }}</p>
+          <div class="top-reason">
+            <div class="reason-label">💡 为什么匹配它</div>
+            <p class="reason-text">{{ topPick.reason || topPick.description }}</p>
+          </div>
           <div class="top-meta">
             <span class="meta-item">📅 寿命 {{ topPick.lifespan }}</span>
             <span class="meta-item">💰 {{ topPick.price }}</span>
@@ -728,6 +731,26 @@ onBeforeUnmount(() => {
   color: var(--text-secondary);
   text-align: left;
   margin-bottom: 20px;
+}
+.top-reason {
+  background: rgba(124, 108, 240, 0.06);
+  border: 1px solid rgba(124, 108, 240, 0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+.reason-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #9b8ff5;
+  margin-bottom: 6px;
+}
+.reason-text {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .top-meta {

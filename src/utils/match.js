@@ -138,6 +138,7 @@ export function matchPets(answers) {
     return {
       ...pet,
       similarity,
+      reason: generateMatchDescription(userRaw, pet),
       vetoed: vetoPenalty > 20,
       vetoReason: vetoPenalty > 20 ? '部分条件不太匹配' : '',
       _zDistance: Math.sqrt(DIMENSIONS.reduce((sum, d) => sum + (userZ[d] - petZ[d]) ** 2, 0)),
@@ -185,3 +186,104 @@ export function getUserProfile(answers) {
 
   return traits.length > 0 ? traits.slice(0, 4) : ['全能选手']
 }
+
+/**
+ * 维度词典：用于生成匹配理由
+ */
+const DIM_DICT = {
+  space: {
+    high: { user: '你有充足的饲养空间', pet: '需要较大的活动空间' },
+    mid: { user: '你的居住空间适中', pet: '对空间要求适中' },
+    low: { user: '你的居住空间比较紧凑', pet: '不需要太大空间，小环境就能满足' }
+  },
+  interaction: {
+    high: { user: '你渴望和宠物有亲密互动', pet: '互动性很好，会回应你的陪伴' },
+    mid: { user: '你对互动有一定期待', pet: '适当的互动就能满足' },
+    low: { user: '你更享受安静的陪伴', pet: '不粘人，各自安好就很舒服' }
+  },
+  cost: {
+    high: { user: '你愿意为宠物投入预算', pet: '虽然成本不低但物有所值' },
+    mid: { user: '你的宠物预算适中', pet: '饲养成本在合理范围内' },
+    low: { user: '你追求高性价比', pet: '饲养成本很低，不会造成经济负担' }
+  },
+  time: {
+    high: { user: '你愿意花时间照顾宠物', pet: '需要充足的日常照料时间' },
+    mid: { user: '你能抽出固定时间照顾', pet: '日常维护时间要求适中' },
+    low: { user: '你的生活节奏较快', pet: '不需要每天花大量时间打理' }
+  },
+  experience: {
+    high: { user: '你是有经验的饲主', pet: '对饲养技巧有一定要求' },
+    mid: { user: '你有基本的养宠常识', pet: '上手难度适中' },
+    low: { user: '你是养宠新手', pet: '对新手非常友好，容错率高' }
+  },
+  feeding: {
+    high: { user: '你对活体饲料接受度高', pet: '以活体饲料为主食' },
+    mid: { user: '你对宠物饮食不挑剔', pet: '饮食多样，接受度灵活' },
+    low: { user: '你对活体饲料有些抗拒', pet: '饮食简单，不需要接触活体饲料' }
+  },
+  activity: {
+    high: { user: '你希望宠物活泼好动', pet: '精力充沛，充满活力' },
+    mid: { user: '你对活跃度要求适中', pet: '动静皆宜' },
+    low: { user: '你更喜欢安静的环境', pet: '安静稳重，不吵不闹' }
+  },
+  uniqueness: {
+    high: { user: '你追求与众不同的宠物', pet: '足够特别，能让朋友们眼前一亮' },
+    mid: { user: '你对宠物品种没有执念', pet: '有特点但不猎奇' },
+    low: { user: '你不在乎宠物是否稀有', pet: '经典品种，稳定可靠' }
+  },
+  patience: {
+    high: { user: '你非常有耐心', pet: '需要慢慢培养信任' },
+    mid: { user: '你有基本的耐心', pet: '相处起来不费劲' },
+    low: { user: '你希望宠物尽快上手', pet: '性格温顺，不需要特别驯化' }
+  }
+}
+
+function describeLevel(val) {
+  if (val >= 4) return 'high'
+  if (val >= 2.5) return 'mid'
+  return 'low'
+}
+
+/**
+ * 生成匹配理由描述
+ * @param {Object} userRaw - 用户各维度原始平均分
+ * @param {Object} pet - 匹配到的宠物数据
+ * @returns {string}
+ */
+function generateMatchDescription(userRaw, pet) {
+  // 找出用户和宠物最匹配的 3 个维度（z-score 同方向且差异小）
+  const userZ = toZScore(userRaw)
+  const petZ = toZScore({ space: pet.space, interaction: pet.interaction, cost: pet.cost, time: pet.time, experience: pet.experience, feeding: pet.feeding, activity: pet.activity, uniqueness: pet.uniqueness, patience: pet.patience })
+
+  // 计算每个维度的对齐度：同方向且绝对值越大越好
+  const alignments = DIMENSIONS.map(d => ({
+    dim: d,
+    score: (userZ[d] * petZ[d]) * Math.min(Math.abs(userZ[d]), Math.abs(petZ[d]))
+  }))
+  alignments.sort((a, b) => b.score - a.score)
+
+  // 取top 3 维度
+  const topDims = alignments.slice(0, 3).map(a => a.dim)
+
+  const sentences = []
+  topDims.forEach(d => {
+    const dict = DIM_DICT[d]
+    const userDesc = dict[describeLevel(userRaw[d])]
+    const petDesc = dict[describeLevel(pet[d])]
+
+    // 拼成一句人话
+    if (describeLevel(userRaw[d]) === describeLevel(pet[d])) {
+      sentences.push(`${userDesc.user}，而${pet.name}${petDesc.pet}，在这方面你们很合拍。`)
+    } else if (describeLevel(userRaw[d]) === 'high' || describeLevel(userRaw[d]) === 'low') {
+      sentences.push(`虽然${userDesc.user}，但${pet.name}${petDesc.pet}，刚好能满足你的需求。`)
+    }
+  })
+
+  if (sentences.length === 0) {
+    return `${pet.name}的整体条件与你的生活方式非常匹配，是最适合你的异宠伴侣。`
+  }
+
+  return sentences.join(' ')
+}
+
+export { generateMatchDescription }
