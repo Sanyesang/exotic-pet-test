@@ -47,6 +47,9 @@
           <div class="top-reason">
             <div class="reason-label">💡 为什么匹配它</div>
             <p class="reason-text">{{ topPick.reason || topPick.description }}</p>
+            <div class="reason-more" @click="showDetail(topPick)">
+              查看简介与饲养档案 →
+            </div>
           </div>
           <div class="top-meta">
             <span class="meta-item">📅 寿命 {{ topPick.lifespan }}</span>
@@ -750,7 +753,20 @@ onBeforeUnmount(() => {
   font-size: 13px;
   line-height: 1.7;
   color: var(--text-secondary);
-  margin: 0;
+  margin: 0 0 10px;
+}
+.reason-more {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9b8ff5;
+  padding: 8px 0;
+  border-top: 1px solid rgba(124, 108, 240, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.reason-more:active {
+  opacity: 0.6;
 }
 
 .top-meta {
