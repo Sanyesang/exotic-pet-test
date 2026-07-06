@@ -26,42 +26,6 @@ const products = [
     link: 'https://mobile.yangkeduo.com/duo_coupon_landing.html?goods_id=952270508898&pid=44554960_316791390&goods_sign=E9r2f93wLfZt8cPhwvbA0KhYk21nPamZ_JQEbPdgkwi&cpsSign=CC_260705_44554960_316791390_4ec0c04874583d542395d89bb15acdda&_x_ddjb_act=%7B%22st%22%3A%221%7D&duoduo_type=2',
     shop: '拼多多'
   },
-  {
-    id: 3,
-    title: '椰土/爬虫垫材 5L装',
-    image: 'https://image.pollinations.ai/prompt/coconut%20fiber%20substrate%20for%20reptiles%20white%20background%20product%20photo?width=400&height=400&nologo=true',
-    price: '¥15起',
-    tag: '💎 低价',
-    link: 'https://s.click.taobao.com/your-affiliate-link',
-    shop: '淘宝'
-  },
-  {
-    id: 4,
-    title: '自动喷淋系统 定时加湿',
-    image: 'https://image.pollinations.ai/prompt/automatic%20mist%20sprayer%20for%20reptile%20terrarium%20white%20background?width=400&height=400&nologo=true',
-    price: '¥128起',
-    tag: '🛒 推荐',
-    link: 'https://s.click.taobao.com/your-affiliate-link',
-    shop: '淘宝'
-  },
-  {
-    id: 5,
-    title: '温湿度计 电子精准数显',
-    image: 'https://image.pollinations.ai/prompt/digital%20thermometer%20hygrometer%20white%20background%20product%20photo?width=400&height=400&nologo=true',
-    price: '¥25起',
-    tag: '🎯 精准',
-    link: 'https://s.click.taobao.com/your-affiliate-link',
-    shop: '淘宝'
-  },
-  {
-    id: 6,
-    title: '活体面包虫 500g装',
-    image: 'https://image.pollinations.ai/prompt/mealworms%20in%20a%20container%20white%20background%20product%20photo?width=400&height=400&nologo=true',
-    price: '¥12起',
-    tag: '🐛 饲料',
-    link: 'https://s.click.taobao.com/your-affiliate-link',
-    shop: '淘宝'
-  }
 ]
 
 /**
@@ -82,7 +46,7 @@ export function getRandomProduct() {
 /**
  * 获取当前广告要展示的商品列表（用于轮播）
  */
-export function getAdProducts(count = 3) {
+export function getAdProducts(count = 2) {
   const shuffled = [...products].sort(() => Math.random() - 0.5)
   return shuffled.slice(0, count)
 }
