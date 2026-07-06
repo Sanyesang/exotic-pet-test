@@ -1,230 +1,208 @@
-/**
- * 分享卡片生成器
- * 使用 Canvas 绘制分享图，支持长按保存到相册
- */
-
 const CARD_WIDTH = 600
-const CARD_HEIGHT = 900
+const CARD_HEIGHT = 960
 
-/**
- * 生成分享卡片
- * @param {Object} pet - 匹配的异宠数据
- * @param {Array} tags - 用户画像标签
- * @returns {Promise<Blob>} 图片 Blob
- */
 export async function generateShareCard(pet, tags) {
   const canvas = document.createElement('canvas')
   canvas.width = CARD_WIDTH
   canvas.height = CARD_HEIGHT
   const ctx = canvas.getContext('2d')
 
-  // ---- 1. 背景渐变 ----
-  const bgGrad = ctx.createLinearGradient(0, 0, 0, CARD_HEIGHT)
-  bgGrad.addColorStop(0, '#0f0f0f')
-  bgGrad.addColorStop(0.5, '#1a1a2e')
-  bgGrad.addColorStop(1, '#0f0f0f')
-  ctx.fillStyle = bgGrad
+  // ---- 1. 背景 ----
+  const bg = ctx.createLinearGradient(0, 0, 0, CARD_HEIGHT)
+  bg.addColorStop(0, '#0f0f0f')
+  bg.addColorStop(0.4, '#1a1a2e')
+  bg.addColorStop(1, '#0f0f0f')
+  ctx.fillStyle = bg
   ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT)
 
-  // 装饰光晕
-  const glow1 = ctx.createRadialGradient(100, 100, 0, 100, 100, 300)
-  glow1.addColorStop(0, 'rgba(124, 108, 240, 0.08)')
-  glow1.addColorStop(1, 'rgba(124, 108, 240, 0)')
-  ctx.fillStyle = glow1
-  ctx.fillRect(0, 0, 400, 400)
-
-  const glow2 = ctx.createRadialGradient(CARD_WIDTH - 100, CARD_HEIGHT - 100, 0, CARD_WIDTH - 100, CARD_HEIGHT - 100, 300)
-  glow2.addColorStop(0, 'rgba(240, 168, 108, 0.08)')
-  glow2.addColorStop(1, 'rgba(240, 168, 108, 0)')
-  ctx.fillStyle = glow2
-  ctx.fillRect(CARD_WIDTH - 400, CARD_HEIGHT - 400, 400, 400)
-
-  // ---- 2. 顶部标题 ----
+  // ---- 2. 标题 ----
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-
-  ctx.font = 'bold 36px sans-serif'
+  ctx.font = 'bold 34px sans-serif'
   const titleGrad = ctx.createLinearGradient(CARD_WIDTH / 2 - 100, 0, CARD_WIDTH / 2 + 100, 0)
   titleGrad.addColorStop(0, '#7c6cf0')
   titleGrad.addColorStop(1, '#f0a86c')
   ctx.fillStyle = titleGrad
-  ctx.fillText('🦎 异宠人格测试', CARD_WIDTH / 2, 72)
+  ctx.fillText('\u{1F98E} \u5F02\u5BA0\u4EBA\u683C\u6D4B\u8BD5', CARD_WIDTH / 2, 55)
 
-  // ---- 3. 标签行 ----
+  // ---- 3. 标签 ----
   if (tags && tags.length > 0) {
-    const tagY = 120
-    const tagHeight = 34
+    const tagY = 100
+    const tagH = 32
     const tagGap = 10
-    const totalTagWidth = tags.reduce((sum, t) => sum + ctx.measureText(t).width + 28, 0) + (tags.length - 1) * tagGap
-    let startX = (CARD_WIDTH - totalTagWidth) / 2
+    let totalW = 0
+    const measured = tags.map(t => ({ text: t, w: ctx.measureText(t).width + 24 }))
+    measured.forEach(m => totalW += m.w)
+    totalW += (measured.length - 1) * tagGap
+    let sx = (CARD_WIDTH - totalW) / 2
 
-    tags.forEach(tag => {
-      const tagW = ctx.measureText(tag).width + 24
-      const tagX = startX
-
-      // 标签背景
+    measured.forEach(m => {
       ctx.beginPath()
-      ctx.roundRect(tagX, tagY - tagHeight / 2, tagW, tagHeight, tagHeight / 2)
+      ctx.roundRect(sx, tagY - tagH / 2, m.w, tagH, tagH / 2)
       ctx.fillStyle = 'rgba(124, 108, 240, 0.15)'
       ctx.fill()
-      ctx.strokeStyle = 'rgba(124, 108, 240, 0.25)'
-      ctx.lineWidth = 1
-      ctx.stroke()
-
-      // 标签文字
-      ctx.font = '14px sans-serif'
+      ctx.font = '13px sans-serif'
       ctx.fillStyle = '#9b8ff5'
-      ctx.fillText(tag, tagX + tagW / 2, tagY)
-
-      startX += tagW + tagGap
+      ctx.fillText(m.text, sx + m.w / 2, tagY)
+      sx += m.w + tagGap
     })
   }
 
-  // ---- 4. 宠物图片（圆形裁剪） ----
-  const imgSize = 260
-  const imgX = (CARD_WIDTH - imgSize) / 2
-  const imgY = 170
+  // ---- 4. 双图并排 ----
+  const imgSize = 200
+  const imgGap = 16
+  const totalImgW = imgSize * 2 + imgGap
+  const imgStartX = (CARD_WIDTH - totalImgW) / 2
+  const imgY = 150
 
+  // 左：卡通版
   try {
-    const img = await loadImage(pet.image)
-    // 画影子
+    const cute = await loadImage(pet.image)
+    ctx.save()
     ctx.beginPath()
-    ctx.arc(CARD_WIDTH / 2, imgY + imgSize / 2 + 10, imgSize / 2 + 5, 0, Math.PI * 2)
-    ctx.fillStyle = 'rgba(0,0,0,0.2)'
-    ctx.fill()
-
-    // 画圆形图片
-    ctx.beginPath()
-    ctx.arc(CARD_WIDTH / 2, imgY + imgSize / 2, imgSize / 2, 0, Math.PI * 2)
+    ctx.roundRect(imgStartX, imgY, imgSize, imgSize, 14)
     ctx.clip()
-    ctx.drawImage(img, imgX, imgY, imgSize, imgSize)
-    ctx.restore() // 重置 clip
+    ctx.drawImage(cute, imgStartX, imgY, imgSize, imgSize)
+    ctx.restore()
   } catch (e) {
-    // 图片加载失败，画占位
-    ctx.beginPath()
-    ctx.arc(CARD_WIDTH / 2, imgY + imgSize / 2, imgSize / 2, 0, Math.PI * 2)
-    ctx.fillStyle = '#1a1a2e'
-    ctx.fill()
-    ctx.font = '80px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(pet.emoji || '🦎', CARD_WIDTH / 2, imgY + imgSize / 2)
+    drawFallback(ctx, imgStartX, imgY, imgSize, imgSize, pet.emoji || '\u{1F98E}')
   }
+  ctx.font = '12px sans-serif'
+  ctx.fillStyle = '#6b6b80'
+  ctx.fillText('\u{1F3A8} \u5361\u901A\u7248', imgStartX + imgSize / 2, imgY + imgSize + 22)
+
+  // 右：真实版
+  const realImgSrc = `/images/realistic/${pet.id}.jpg`
+  try {
+    const real = await loadImage(realImgSrc)
+    ctx.save()
+    ctx.beginPath()
+    ctx.roundRect(imgStartX + imgSize + imgGap, imgY, imgSize, imgSize, 14)
+    ctx.clip()
+    ctx.drawImage(real, imgStartX + imgSize + imgGap, imgY, imgSize, imgSize)
+    ctx.restore()
+  } catch (e) {
+    try {
+      const real2 = await loadImage(pet.image)
+      ctx.save()
+      ctx.beginPath()
+      ctx.roundRect(imgStartX + imgSize + imgGap, imgY, imgSize, imgSize, 14)
+      ctx.clip()
+      ctx.drawImage(real2, imgStartX + imgSize + imgGap, imgY, imgSize, imgSize)
+      ctx.restore()
+    } catch (e2) {
+      drawFallback(ctx, imgStartX + imgSize + imgGap, imgY, imgSize, imgSize, pet.emoji || '\u{1F98E}')
+    }
+  }
+  ctx.font = '12px sans-serif'
+  ctx.fillStyle = '#6b6b80'
+  ctx.fillText('\u{1F4F7} \u771F\u5B9E\u7248', imgStartX + imgSize + imgGap + imgSize / 2, imgY + imgSize + 22)
+
+  // 两图之间的标签
+  ctx.font = '11px sans-serif'
+  ctx.fillStyle = 'rgba(255,255,255,0.08)'
+  ctx.fillText('VS', CARD_WIDTH / 2, imgY + imgSize / 2)
 
   // ---- 5. 匹配度环 ----
-  const ringCenterX = CARD_WIDTH / 2
-  const ringCenterY = imgY + imgSize + 50
-  const ringRadius = 46
-  const ringWidth = 6
+  const ringCY = imgY + imgSize + 62
+  const ringR = 42
+  const rw = 5
+  const sim = pet.similarity || 85
 
-  // 背景环
   ctx.beginPath()
-  ctx.arc(ringCenterX, ringCenterY, ringRadius, 0, Math.PI * 2)
+  ctx.arc(CARD_WIDTH / 2, ringCY, ringR, 0, Math.PI * 2)
   ctx.strokeStyle = 'rgba(255,255,255,0.06)'
-  ctx.lineWidth = ringWidth
+  ctx.lineWidth = rw
   ctx.stroke()
 
-  // 进度环
-  const similarity = pet.similarity || 85
-  const startAngle = -Math.PI / 2
-  const endAngle = startAngle + (Math.PI * 2 * similarity) / 100
   ctx.beginPath()
-  ctx.arc(ringCenterX, ringCenterY, ringRadius, startAngle, endAngle)
+  ctx.arc(CARD_WIDTH / 2, ringCY, ringR, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * sim) / 100)
   ctx.strokeStyle = '#7c6cf0'
-  ctx.lineWidth = ringWidth
+  ctx.lineWidth = rw
   ctx.lineCap = 'round'
   ctx.stroke()
 
-  // 匹配度文字
-  ctx.font = 'bold 22px sans-serif'
+  ctx.font = 'bold 20px sans-serif'
   ctx.fillStyle = '#ffffff'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText(`${similarity}%`, ringCenterX, ringCenterY - 6)
-  ctx.font = '12px sans-serif'
+  ctx.fillText(`${sim}%`, CARD_WIDTH / 2, ringCY - 4)
+  ctx.font = '11px sans-serif'
   ctx.fillStyle = '#a0a0b0'
-  ctx.fillText('匹配度', ringCenterX, ringCenterY + 18)
+  ctx.fillText('\u5339\u914D\u5EA6', CARD_WIDTH / 2, ringCY + 16)
 
-  // ---- 6. 宠物名称 ----
-  const nameY = ringCenterY + 56
-  ctx.font = 'bold 32px sans-serif'
+  // ---- 6. 名称 + 称号 ----
+  const nameY = ringCY + 50
+  ctx.font = 'bold 30px sans-serif'
   ctx.fillStyle = '#ffffff'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
   ctx.fillText(pet.name, CARD_WIDTH / 2, nameY)
-
-  // ---- 7. 宠物称号 ----
-  ctx.font = '18px sans-serif'
+  ctx.font = '16px sans-serif'
   ctx.fillStyle = '#a0a0b0'
-  ctx.fillText(pet.title || '', CARD_WIDTH / 2, nameY + 36)
+  ctx.fillText(pet.title || '', CARD_WIDTH / 2, nameY + 30)
 
-  // ---- 8. 分割线 ----
-  const lineY = nameY + 60
+  // ---- 7. 分割线 ----
+  const divY = nameY + 54
   ctx.beginPath()
-  ctx.moveTo(CARD_WIDTH / 2 - 120, lineY)
-  ctx.lineTo(CARD_WIDTH / 2 + 120, lineY)
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+  ctx.moveTo(CARD_WIDTH / 2 - 100, divY)
+  ctx.lineTo(CARD_WIDTH / 2 + 100, divY)
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'
   ctx.lineWidth = 1
   ctx.stroke()
 
-  // ---- 9. 二维码 ----
+  // ---- 8. 二维码 + 扫码提示 ----
+  const qrY = divY + 20
+  const qrS = 72
+  const qrX = CARD_WIDTH / 2 - qrS / 2
+
   try {
-    const qrCode = await loadImage('/images/qr-code.png')
-    const qrSize = 80
-    const qrX = (CARD_WIDTH - qrSize) / 2
-    const qrY = lineY + 18
-    // 二维码背景
+    const qr = await loadImage(window.location.origin + '/images/qr-code.png')
     ctx.beginPath()
-    ctx.roundRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 8)
+    ctx.roundRect(qrX - 5, qrY - 5, qrS + 10, qrS + 10, 6)
     ctx.fillStyle = '#ffffff'
     ctx.fill()
-    ctx.drawImage(qrCode, qrX, qrY, qrSize, qrSize)
+    ctx.drawImage(qr, qrX, qrY, qrS, qrS)
   } catch (e) {
-    // 二维码加载失败，用文字代替
+    // 未加载到二维码，跳过
   }
 
-  // ---- 10. 扫码提示 ----
-  const scanY = lineY + 120
-  ctx.font = '16px sans-serif'
+  ctx.font = '14px sans-serif'
   ctx.fillStyle = '#a0a0b0'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText('扫一扫 · 测测你的天选异宠', CARD_WIDTH / 2, scanY)
+  ctx.fillText('\u626B\u4E00\u626B \u00B7 \u6D4B\u6D4B\u4F60\u7684\u5929\u9009\u5F02\u5BA0', CARD_WIDTH / 2, qrY + qrS + 28)
 
-  // ---- 11. 底部 CTA ----
-  const ctaY = scanY + 38
-  const ctaW = 260
+  // ---- 9. 底部按钮 ----
+  const ctaY = qrY + qrS + 62
+  const ctaW = 240
   const ctaH = 44
   const ctaX = (CARD_WIDTH - ctaW) / 2
   ctx.beginPath()
   ctx.roundRect(ctaX, ctaY - ctaH / 2, ctaW, ctaH, ctaH / 2)
-  const ctaGrad = ctx.createLinearGradient(ctaX, 0, ctaX + ctaW, 0)
-  ctaGrad.addColorStop(0, '#7c6cf0')
-  ctaGrad.addColorStop(1, '#5a4ad8')
-  ctx.fillStyle = ctaGrad
+  const g = ctx.createLinearGradient(ctaX, 0, ctaX + ctaW, 0)
+  g.addColorStop(0, '#7c6cf0')
+  g.addColorStop(1, '#5a4ad8')
+  ctx.fillStyle = g
   ctx.fill()
-
-  ctx.font = 'bold 16px sans-serif'
+  ctx.font = 'bold 15px sans-serif'
   ctx.fillStyle = '#ffffff'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText('开始测试 →', CARD_WIDTH / 2, ctaY)
+  ctx.fillText('\u514D\u8D39\u5F00\u59CB\u6D4B\u8BD5 \u2192', CARD_WIDTH / 2, ctaY)
 
-  // ---- 12. 底部网址 ----
+  // ---- 10. 网址 ----
   ctx.font = '12px sans-serif'
   ctx.fillStyle = '#6b6b80'
-  ctx.fillText(window.location.hostname || '异宠人格测试', CARD_WIDTH / 2, CARD_HEIGHT - 18)
+  ctx.fillText(window.location.hostname || '\u5F02\u5BA0\u4EBA\u683C\u6D4B\u8BD5', CARD_WIDTH / 2, CARD_HEIGHT - 22)
 
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(blob)
-    }, 'image/png')
-  })
+  return new Promise(r => canvas.toBlob(b => r(b), 'image/png'))
 }
 
-/**
- * 加载图片
- */
+function drawFallback(ctx, x, y, w, h, emoji) {
+  ctx.beginPath()
+  ctx.roundRect(x, y, w, h, 14)
+  ctx.fillStyle = '#1a1a2e'
+  ctx.fill()
+  ctx.font = `${Math.min(w, h) * 0.4}px sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = '#6b6b80'
+  ctx.fillText(emoji, x + w / 2, y + h / 2)
+}
+
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -235,9 +213,6 @@ function loadImage(src) {
   })
 }
 
-/**
- * 下载/保存图片到相册
- */
 export function downloadShareCard(blob, filename = 'exotic-pet-test.png') {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
