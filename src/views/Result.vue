@@ -22,7 +22,12 @@
       <div class="top-pick anim-up a-delay-2" @click="showDetail(topPick)">
         <div class="top-badge">🏆 最佳匹配</div>
         <div class="top-card">
-          <div class="top-image"><img :src="topPick.image" :alt="topPick.name" @error="imgErr" /></div>
+          <div class="top-image">
+            <img :src="topImgSrc" :alt="topPick.name" @error="imgErr" />
+            <button class="toggle-top-btn" @click="showRealistic = !showRealistic">
+              {{ showRealistic ? '🎨 切换卡通形象' : '📷 切换真实形象' }}
+            </button>
+          </div>
           <h2 class="top-name">{{ topPick.name }}</h2>
           <div class="top-title">{{ topPick.title }}</div>
           <div class="top-match">
@@ -174,7 +179,7 @@
           <div class="detail-image">
             <img :src="detailImgSrc" :alt="detailPet.name" @error="imgErr" />
             <button class="toggle-style-btn" @click="togglePetStyle">
-              {{ showRealistic ? '🎨 卡通' : '📷 真实' }}
+              {{ showRealistic ? '🎨 切换卡通形象' : '📷 切换真实形象' }}
             </button>
           </div>
           <h2 class="detail-name">{{ detailPet.name }}</h2>
@@ -312,6 +317,11 @@ const dimensions = [
 ]
 
 const topPick = computed(() => allRanked.value[0] || {})
+const topImgSrc = computed(() => {
+  if (!topPick.value || !topPick.value.id) return ''
+  if (showRealistic.value) return `/images/realistic/${topPick.value.id}.jpg`
+  return topPick.value.image
+})
 const otherPets = computed(() => allRanked.value.slice(1, 6))
 const sameAsTop = computed(() => false)
 
@@ -663,12 +673,30 @@ onBeforeUnmount(() => {
   margin: 0 auto 16px;
   border-radius: 16px;
   overflow: hidden;
+  position: relative;
 }
 .top-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
+}
+.toggle-top-btn {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(15, 15, 15, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.toggle-top-btn:active {
+  transform: scale(0.94);
 }
 .top-name {
   font-size: 28px;
